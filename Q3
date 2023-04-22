@@ -1,0 +1,72 @@
+Please fix, optimize, and/or modify the component as much as you think is necessary.
+
+* There are several problems with the given code that need to be fixed:
+
+* The useState hook is being used incorrectly. The setter function should be named setSelectedIndex, not [setSelectedIndex, selectedIndex] = useState();
+
+* The isSelected prop in WrappedSingleListItem is supposed to be a boolean, but it is currently being passed selectedIndex, which is a state object. To fix this, we need to change isSelected={selectedIndex} to isSelected={selectedIndex === index}.
+
+* The propTypes definition for items is incorrect. It should be items: PropTypes.arrayOf(PropTypes.shape({ text: PropTypes.string.isRequired })) instead of items: PropTypes.array(PropTypes.shapeOf({ text: PropTypes.string.isRequired })).
+
+* There is no need to memoize WrappedSingleListItem and WrappedListComponent since they are simple components that do not have expensive computations.
+
+Here is the updated and optimized code:
+
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+
+// Single List Item
+const SingleListItem = ({ index, isSelected, onClickHandler, text }) => {
+  return (
+    <li
+      style={{ backgroundColor: isSelected ? 'green' : 'red' }}
+      onClick={() => onClickHandler(index)}
+    >
+      {text}
+    </li>
+  );
+};
+
+SingleListItem.propTypes = {
+  index: PropTypes.number.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onClickHandler: PropTypes.func.isRequired,
+  text: PropTypes.string.isRequired,
+};
+
+// List Component
+const List = ({ items }) => {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  useEffect(() => {
+    setSelectedIndex(null);
+  }, [items]);
+
+  const handleClick = index => {
+    setSelectedIndex(index);
+  };
+
+  return (
+    <ul style={{ textAlign: 'left' }}>
+      {items.map((item, index) => (
+        <SingleListItem
+          key={index}
+          onClickHandler={handleClick}
+          text={item.text}
+          index={index}
+          isSelected={selectedIndex === index}
+        />
+      ))}
+    </ul>
+  );
+};
+
+List.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.shape({ text: PropTypes.string.isRequired }))
+    .isRequired,
+};
+
+export default List;
+
+
+* The optimized version of the code removes the unnecessary memo calls, fixes the useState issue, and uses the onClick event handler correctly.
